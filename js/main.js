@@ -21,6 +21,28 @@ var loadingScreen = {
 var loadingManager = null;
 var RESOURCES_LOADED = false;
 
+// models
+var models = {
+    tent: {
+        obj: "models/Tent_Poles_01.obj",
+        mtl: "models/Tent_Poles_01.mtl",
+        mesh: null
+    },
+    campfire: {
+        obj: "models/Campfire_01.obj",
+        mtl: "models/Campfire_01.mtl",
+        mesh: null
+    },
+    pirateship: {
+        obj: "models/Pirateship.obj",
+        mtl: "models/Pirateship.mtl",
+        mesh: null
+    }
+};
+
+// meshes
+var meshes = {};
+
 function init(){
 
     // init scene
@@ -45,6 +67,7 @@ function init(){
     loadingManager.onLoad = function(){
         console.log("Finished loading.");
         RESOURCES_LOADED = true;
+        onResourcesLoaded();
     }
     
     // create box in center
@@ -61,7 +84,7 @@ function init(){
     
     // create floor
 	meshFloor = new THREE.Mesh(
-        new THREE.PlaneGeometry(10,10, 10,10),
+        new THREE.PlaneGeometry(20,10, 10,10),
         // MeshBasicMaterial does not react to lighting, so we replace with MeshPhongMaterial
         new THREE.MeshPhongMaterial({color:0xffffff, wireframe:USE_WIREFRAME})
         // See threejs.org/examples/ for other material types
@@ -105,31 +128,40 @@ function init(){
 	scene.add(crate);
 	crate.position.set(2.5, 3/2, 2.5);
 	crate.receiveShadow = true;
-	crate.castShadow = true;
+    crate.castShadow = true;
+    
+    // loading models
+    // REMEMBER: Loading in Javascript is asynchronous, so you need
+	// to wrap the code in a function and pass it the index. If you
+	// don't, then the index '_key' can change while the model is being
+	// downloaded, and so the wrong model will be matched with the wrong
+    // index key.
+    
+    for ( var _key in models ){
+        (function (_key){
 
-    // Model/material loader - not working
-    var mtlLoader = new THREE.MTLLoader(loadingManager);
-    mtlLoader.load('models/Tent_Poles_01.mtl', function(materials){
+            var mtlLoader = new THREE.MTLLoader(loadingManager);
+			mtlLoader.load(models[_key].mtl, function(materials){
+				materials.preload();
+				
+				var objLoader = new THREE.OBJLoader(loadingManager);
+				
+				objLoader.setMaterials(materials);
+				objLoader.load(models[_key].obj, function(mesh){
+					
+					mesh.traverse(function(node){
+						if( node instanceof THREE.Mesh ){
+							node.castShadow = true;
+							node.receiveShadow = true;
+						}
+					});
+					models[_key].mesh = mesh;
+					
+				});
+			});
 
-        materials.preload();
-        // object loader
-        var objLoader = new THREE.OBJLoader(loadingManager);
-        objLoader.setMaterials(materials);
-
-        objLoader.load('models/Tent_Poles_01.obj', function(mesh){
-
-            mesh.traverse(function(node){
-                if(node instanceof THREE.Mesh ){
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                }
-            });
-
-            scene.add(mesh);
-            mesh.position.set(-5, 0, 4);
-            mesh.rotation.y = -Math.PI/4;
-        })
-    })
+        })(_key);
+    }
 
     // position the camera to look at the player
 	camera.position.set(0, player.height, -5);
@@ -145,6 +177,35 @@ function init(){
 	document.body.appendChild(renderer.domElement);
 	
 	animate();
+}
+
+// runs when all resources are loaded
+function onResourcesLoaded(){
+
+    // clone models into meshes.
+    meshes["tent1"] = models.tent.mesh.clone();
+    meshes["tent2"] = models.tent.mesh.clone();
+    meshes["campfire1"] = models.campfire.mesh.clone();
+    meshes["campfire2"] = models.campfire.mesh.clone();
+    meshes["pirateship"] = models.pirateship.mesh.clone();
+
+    // reposition individual meshes, then add meshes to the scene
+    meshes["tent1"].position.set(-4, 0 ,4);
+    scene.add(meshes["tent1"]);
+
+    meshes["tent2"].position.set(-7, 0 ,4);
+    scene.add(meshes["tent2"]);
+
+    meshes["campfire1"].position.set(-4, 0 ,1);
+    meshes["campfire2"].position.set(-7, 0 ,1);
+    scene.add(meshes["campfire1"]);
+    scene.add(meshes["campfire2"]);
+
+
+    meshes["pirateship"].position.set(-15, -1, 1);
+    meshes["pirateship"].rotation.set(0, Math.PI, 0); // Rotate it to face the other way.
+    scene.add(meshes["pirateship"]);
+
 }
 
 function animate(){
@@ -164,7 +225,10 @@ function animate(){
 	requestAnimationFrame(animate);
 	
 	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.02;
+    mesh.rotation.y += 0.02;
+    
+    // Uncomment for absurdity!
+	// meshes["pirateship"].rotation.z += 0.01;
 	
 	// Keyboard movement inputs
 	if(keyboard[87]){ // W key
