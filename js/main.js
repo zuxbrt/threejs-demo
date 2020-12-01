@@ -38,12 +38,12 @@ var models = {
         mtl: "models/Pirateship.mtl",
         mesh: null
     },
-    // uzi: {
-    //     obj: "models/uziGold.obj",
-    //     mtl: "models/uziGold.mtl",
-    //     mesh: null,
-    //     castShadow: false
-    // }
+    uzi: {
+        obj: "models/uziGold.obj",
+        mtl: "models/uziGold.mtl",
+        mesh: null,
+        castShadow: false
+    }
 };
 
 // meshes
@@ -224,10 +224,10 @@ function onResourcesLoaded(){
     scene.add(meshes["pirateship"]);
 
     // player weapon
-    // meshes["playerweapon"] = models.uzi.mesh.clone();
-    // meshes["playerweapon"].position.set(0,2,0);
-    // meshes["playerweapon"].scale.set(10,10,10);
-    // scene.add(meshes["playerweapon"]);
+    meshes["playerweapon"] = models.uzi.mesh.clone();
+    meshes["playerweapon"].position.set(0,2,0);
+    meshes["playerweapon"].scale.set(10,10,10);
+    scene.add(meshes["playerweapon"]);
 
 }
 
@@ -284,17 +284,17 @@ function animate(){
     }
     
     // position gun in front of the camera
-    // meshes["playerweapon"].position.set(
-    //     camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
-    //     camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z) * 0.01,
-    //     camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75
-    // );
+    meshes["playerweapon"].position.set(
+        camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+        camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z) * 0.01,
+        camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75
+    );
 
-    // meshes["playerweapon"].rotation.set(
-    //     camera.rotation.x,
-    //     camera.rotation.y - Math.PI,
-    //     camerat.rotation.z
-    // );
+    meshes["playerweapon"].rotation.set(
+        camera.rotation.x,
+        camera.rotation.y - Math.PI,
+        camera.rotation.z
+    );
 	
 	renderer.render(scene, camera);
 }
