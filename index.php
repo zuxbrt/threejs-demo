@@ -13,6 +13,8 @@ header("Access-Control-Allow-Origin: *");
         <script src="js/main.js"></script>
     </head>
     <body style="text-align:center; margin: 0;">
-        <span style="position:absolute;top:0px;left:0px;"><input type="button" value="Toggle Wireframe" onclick="mesh.material.wireframe=!mesh.material.wireframe;meshFloor.material.wireframe=!meshFloor.material.wireframe;"/></span>
+        <span style="position:absolute;top:0px;left:0px; color: white;">
+			WASD to move.<br/>Arrow keys to turn.
+		</span>
 	</body>
 </html>

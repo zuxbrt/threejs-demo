@@ -1,5 +1,5 @@
 // js/main.js
-var scene, camera, renderer, mesh;
+var scene, camera, renderer, mesh, clock;
 var meshFloor, ambientLight, light;
 
 var crate, crateTexture, createNormalMap, createBumpMap;
@@ -37,7 +37,13 @@ var models = {
         obj: "models/Pirateship.obj",
         mtl: "models/Pirateship.mtl",
         mesh: null
-    }
+    },
+    // uzi: {
+    //     obj: "models/uziGold.obj",
+    //     mtl: "models/uziGold.mtl",
+    //     mesh: null,
+    //     castShadow: false
+    // }
 };
 
 // meshes
@@ -84,7 +90,7 @@ function init(){
     
     // create floor
 	meshFloor = new THREE.Mesh(
-        new THREE.PlaneGeometry(20,10, 10,10),
+        new THREE.PlaneGeometry(20,20, 10,10),
         // MeshBasicMaterial does not react to lighting, so we replace with MeshPhongMaterial
         new THREE.MeshPhongMaterial({color:0xffffff, wireframe:USE_WIREFRAME})
         // See threejs.org/examples/ for other material types
@@ -138,24 +144,35 @@ function init(){
     // index key.
     
     for ( var _key in models ){
-        (function (_key){
+        (function (key){
 
             var mtlLoader = new THREE.MTLLoader(loadingManager);
-			mtlLoader.load(models[_key].mtl, function(materials){
+			mtlLoader.load(models[key].mtl, function(materials){
 				materials.preload();
 				
 				var objLoader = new THREE.OBJLoader(loadingManager);
 				
 				objLoader.setMaterials(materials);
-				objLoader.load(models[_key].obj, function(mesh){
+				objLoader.load(models[key].obj, function(mesh){
 					
 					mesh.traverse(function(node){
 						if( node instanceof THREE.Mesh ){
-							node.castShadow = true;
-							node.receiveShadow = true;
+                            
+                            if( 'castShadow' in models[key]){
+                                node.castShadow = models[key].castShadow;
+                            } else {
+                                node.castShadow = true;
+                            }
+
+                            if( 'recieveShadow' in models[key]){
+                                node.recieveShadow = models[key].recieveShadow;
+                            } else {
+                                node.recieveShadow = true;
+                            }
+
 						}
 					});
-					models[_key].mesh = mesh;
+					models[key].mesh = mesh;
 					
 				});
 			});
@@ -206,6 +223,12 @@ function onResourcesLoaded(){
     meshes["pirateship"].rotation.set(0, Math.PI, 0); // Rotate it to face the other way.
     scene.add(meshes["pirateship"]);
 
+    // player weapon
+    // meshes["playerweapon"] = models.uzi.mesh.clone();
+    // meshes["playerweapon"].position.set(0,2,0);
+    // meshes["playerweapon"].scale.set(10,10,10);
+    // scene.add(meshes["playerweapon"]);
+
 }
 
 function animate(){
@@ -222,7 +245,10 @@ function animate(){
 		return; // Stop the function here.
     }
 
-	requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
+    
+    var time = Date.now() * 0.0005;
+    //var delta = clock.getDelta();
 	
 	mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.02;
@@ -255,7 +281,20 @@ function animate(){
 	}
 	if(keyboard[39]){ // right arrow key
 		camera.rotation.y += player.turnSpeed;
-	}
+    }
+    
+    // position gun in front of the camera
+    // meshes["playerweapon"].position.set(
+    //     camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+    //     camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z) * 0.01,
+    //     camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75
+    // );
+
+    // meshes["playerweapon"].rotation.set(
+    //     camera.rotation.x,
+    //     camera.rotation.y - Math.PI,
+    //     camerat.rotation.z
+    // );
 	
 	renderer.render(scene, camera);
 }
