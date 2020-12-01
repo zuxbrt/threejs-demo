@@ -49,6 +49,9 @@ var models = {
 // meshes
 var meshes = {};
 
+// bullets array
+var bullets = [];
+
 function init(){
 
     // init scene
@@ -56,6 +59,7 @@ function init(){
 
     // init camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+    clock = new THREE.Clock();
     
     // set up loading screen scene
     loadingScreen.box.position.set(0,0,5);
@@ -248,13 +252,23 @@ function animate(){
     requestAnimationFrame(animate);
     
     var time = Date.now() * 0.0005;
-    //var delta = clock.getDelta();
+    var delta = clock.getDelta();
 	
 	mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.02;
+    crate.rotation.y += 0.01;
     
     // Uncomment for absurdity!
-	// meshes["pirateship"].rotation.z += 0.01;
+    // meshes["pirateship"].rotation.z += 0.01;
+    for(var index=0; index<bullets.length; index+=1){
+		if( bullets[index] === undefined ) continue;
+		if( bullets[index].alive == false ){
+			bullets.splice(index,1);
+			continue;
+		}
+		
+		bullets[index].position.add(bullets[index].velocity);
+	}
 	
 	// Keyboard movement inputs
 	if(keyboard[87]){ // W key
@@ -282,19 +296,59 @@ function animate(){
 	if(keyboard[39]){ // right arrow key
 		camera.rotation.y += player.turnSpeed;
     }
+
+    // shoot a bullet
+    if(keyboard[32] && player.canShoot <= 0){ // spacebar key
+		// creates a bullet as a Mesh object
+		var bullet = new THREE.Mesh(
+			new THREE.SphereGeometry(0.05,8,8),
+			new THREE.MeshBasicMaterial({color:0xffffff})
+		);
+		// this is silly.
+		// var bullet = models.pirateship.mesh.clone();
+		
+		// position the bullet to come from the player's weapon
+		bullet.position.set(
+			meshes["playerweapon"].position.x,
+			meshes["playerweapon"].position.y + 0.15,
+			meshes["playerweapon"].position.z
+		);
+		
+		// set the velocity of the bullet
+		bullet.velocity = new THREE.Vector3(
+			-Math.sin(camera.rotation.y),
+			0,
+			Math.cos(camera.rotation.y)
+		);
+		
+		// after 1000ms, set alive to false and remove from scene
+		// setting alive to false flags our update code to remove
+		// the bullet from the bullets array
+		bullet.alive = true;
+		setTimeout(function(){
+			bullet.alive = false;
+			scene.remove(bullet);
+		}, 1000);
+		
+		// add to scene, array, and set the delay to 10 frames
+		bullets.push(bullet);
+		scene.add(bullet);
+		player.canShoot = 10;
+	}
+	if(player.canShoot > 0) player.canShoot -= 1;
     
     // position gun in front of the camera
     meshes["playerweapon"].position.set(
-        camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
-        camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z) * 0.01,
-        camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75
+		camera.position.x - Math.sin(camera.rotation.y + Math.PI/6) * 0.75,
+		camera.position.y - 0.5 + Math.sin(time*4 + camera.position.x + camera.position.z)*0.01,
+		camera.position.z + Math.cos(camera.rotation.y + Math.PI/6) * 0.75
     );
-
-    meshes["playerweapon"].rotation.set(
-        camera.rotation.x,
-        camera.rotation.y - Math.PI,
-        camera.rotation.z
-    );
+    
+	meshes["playerweapon"].rotation.set(
+		camera.rotation.x,
+		camera.rotation.y - Math.PI,
+		camera.rotation.z
+	);
 	
 	renderer.render(scene, camera);
 }
