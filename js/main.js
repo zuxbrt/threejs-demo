@@ -57,7 +57,9 @@ function init(){
     // texture loading
     var textureLoader = new THREE.TextureLoader();
     textureLoader.crossOrigin = "anonymous";
-    crateTexture = textureLoader.load('crate0_diffuse.png');
+    crateTexture = textureLoader.load('/textures/crate/crate0_diffuse.png');
+    createBumpMap = textureLoader.load('/textures/crate/crate0_bump.png');
+    crateNormalMap = textureLoader.load('/textures/crate/crate0_normal.png');
 
     // position the camera to look at the player
 	camera.position.set(0, player.height, -5);
