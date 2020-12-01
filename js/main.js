@@ -8,13 +8,44 @@ var keyboard = {};
 var player = { height:1.8, speed:0.2, turnSpeed:Math.PI*0.02 };
 var USE_WIREFRAME = false;
 
+// loading screen
+var loadingScreen = {
+    scene: new THREE.Scene(),
+    camera: new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 100),
+    box: new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 0.5, 0.5),
+        new THREE.MeshBasicMaterial( { color: 0x4444ff } )
+    )
+}
+
+var loadingManager = null;
+var RESOURCES_LOADED = false;
+
 function init(){
 
     // init scene
     scene = new THREE.Scene();
 
     // init camera
-	camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // set up loading screen scene
+    loadingScreen.box.position.set(0,0,5);
+	loadingScreen.camera.lookAt(loadingScreen.box.position);
+	loadingScreen.scene.add(loadingScreen.box);
+
+    // create a loading manager to set RESOURCES_LOADED state,
+    // and pass him to all resource loaders
+    loadingManager = new THREE.LoadingManager();
+
+    loadingManager.onProgress = function(item, loaded, total){
+        console.log(item, loaded, total);
+    }
+
+    loadingManager.onLoad = function(){
+        console.log("Finished loading.");
+        RESOURCES_LOADED = true;
+    }
     
     // create box in center
 	mesh = new THREE.Mesh(
@@ -76,28 +107,28 @@ function init(){
     crate.receiveShadow = true;
     crate.castShadow = true;
 
-    // Model/material loader
-    var mtlLoader = THREE.MTLLoader();
-    mtlLoader.load('/models/Tent_Poles_01.mtl', function(materials){
+    // Model/material loader - not working
+    // var mtlLoader = THREE.MTLLoader();
+    // mtlLoader.load('/models/Tent_Poles_01.mtl', function(materials){
 
-        materials.preload();
-        // object loader
-        var objLoader = THREE.OBJLoader();
+    //     materials.preload();
+    //     // object loader
+    //     var objLoader = THREE.OBJLoader();
 
-        objLoader.load('/models/Tent_Poles_01.obj', function(mesh){
+    //     objLoader.load('/models/Tent_Poles_01.obj', function(mesh){
 
-            mesh.traverse(function(node){
-                if(node instanceof THREE.Mesh ){
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                }
-            });
+    //         mesh.traverse(function(node){
+    //             if(node instanceof THREE.Mesh ){
+    //                 node.castShadow = true;
+    //                 node.receiveShadow = true;
+    //             }
+    //         });
 
-            scene.add(mesh);
-            mesh.position.set(-5, 0, 4);
-            mesh.rotation.y = -Math.PI/4;
-        })
-    })
+    //         scene.add(mesh);
+    //         mesh.position.set(-5, 0, 4);
+    //         mesh.rotation.y = -Math.PI/4;
+    //     })
+    // })
 
     // position the camera to look at the player
 	camera.position.set(0, player.height, -5);
@@ -116,6 +147,19 @@ function init(){
 }
 
 function animate(){
+
+    // this runs while resources are loading
+    if( RESOURCES_LOADED == false ){
+        requestAnimationFrame(animate);
+
+        loadingScreen.box.position.x = -0.05;
+        if( loadingScreen.box.position.x < -10 ) loadingScreen.box.position.x = 10;
+        loadingScreen.box.position.y = Math.sin(loadingScreen.box.position.x);
+
+        renderer.render(loadingScreen.scene, loadingScreen.camera);
+        return;
+    }
+
 	requestAnimationFrame(animate);
 	
 	mesh.rotation.x += 0.01;
