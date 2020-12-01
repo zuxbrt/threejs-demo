@@ -5,7 +5,7 @@ var meshFloor, ambientLight, light;
 var crate, crateTexture, createNormalMap, createBumpMap;
 
 var keyboard = {};
-var player = { height:1.8, speed:0.2, turnSpeed:Math.PI*0.02 };
+var player = { height:1.8, speed:0.2, turnSpeed:Math.PI*0.02, canShoot:0 };
 var USE_WIREFRAME = false;
 
 // loading screen
