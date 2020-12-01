@@ -90,7 +90,7 @@ function init(){
     // the cube can have shadows cast on it, and it can cast shadows
     mesh.receiveShadow = true;
     mesh.castShadow = true;
-	scene.add(mesh);
+	//scene.add(mesh);
     
     // create floor
 	meshFloor = new THREE.Mesh(
