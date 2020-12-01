@@ -1,0 +1,25 @@
+{
+  "name": "threejs-demo",
+  "version": "1.0.0",
+  "description": "Three.js demo project",
+  "main": "index.html",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zuxbrt/threejs-demo.git"
+  },
+  "keywords": [
+    "javascript"
+  ],
+  "author": "zuxbrt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zuxbrt/threejs-demo/issues"
+  },
+  "homepage": "https://github.com/zuxbrt/threejs-demo#readme",
+  "dependencies": {
+    "three": "^0.123.0"
+  }
+}
