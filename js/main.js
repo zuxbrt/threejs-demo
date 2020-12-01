@@ -58,8 +58,46 @@ function init(){
     var textureLoader = new THREE.TextureLoader();
     textureLoader.crossOrigin = "anonymous";
     crateTexture = textureLoader.load('/textures/crate/crate0_diffuse.png');
-    createBumpMap = textureLoader.load('/textures/crate/crate0_bump.png');
+    crateBumpMap = textureLoader.load('/textures/crate/crate0_bump.png');
     crateNormalMap = textureLoader.load('/textures/crate/crate0_normal.png');
+
+    // create mesh with these textures
+    crate = new THREE.Mesh(
+        new THREE.BoxGeometry(3,3,3),
+        new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            map: crateTexture,
+            bumpMap: crateBumpMap,
+            normalMap: crateNormalMap
+        })
+    );
+    scene.add(crate);
+    crate.position.set(2.5, 3/2, 2.5);
+    crate.receiveShadow = true;
+    crate.castShadow = true;
+
+    // Model/material loader
+    var mtlLoader = THREE.MTLLoader();
+    mtlLoader.load('/models/Tent_Poles_01.mtl', function(materials){
+
+        materials.preload();
+        // object loader
+        var objLoader = THREE.OBJLoader();
+
+        objLoader.load('/models/Tent_Poles_01.obj', function(mesh){
+
+            mesh.traverse(function(node){
+                if(node instanceof THREE.Mesh ){
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
+
+            scene.add(mesh);
+            mesh.position.set(-5, 0, 4);
+            mesh.rotation.y = -Math.PI/4;
+        })
+    })
 
     // position the camera to look at the player
 	camera.position.set(0, player.height, -5);

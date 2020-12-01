@@ -8,6 +8,8 @@ header("Access-Control-Allow-Origin: *");
     <head>
         <title>Three.js demo</title>
         <script src="node_modules/three/build/three.js"></script>
+        <script src="js/MTLLoader.js"></script>
+        <script src="js/OBJLoader.js"></script>
         <script src="js/main.js"></script>
     </head>
     <body style="text-align:center; margin: 0;">
