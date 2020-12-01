@@ -86,8 +86,8 @@ function init(){
     scene.add(light);
 
     // texture loading
-    var textureLoader = new THREE.TextureLoader();
-    //textureLoader.crossOrigin = "anonymous";
+    var textureLoader = new THREE.TextureLoader(loadingManager);
+    textureLoader.crossOrigin = "anonymous";
     crateTexture = textureLoader.load('/textures/crate/crate0_diffuse.png');
     crateBumpMap = textureLoader.load('/textures/crate/crate0_bump.png');
     crateNormalMap = textureLoader.load('/textures/crate/crate0_normal.png');
@@ -108,14 +108,15 @@ function init(){
 	crate.castShadow = true;
 
     // Model/material loader - not working
-    var mtlLoader = new THREE.MTLLoader();
-    mtlLoader.load('/models/Tent_Poles_01.mtl', function(materials){
+    var mtlLoader = new THREE.MTLLoader(loadingManager);
+    mtlLoader.load('models/Tent_Poles_01.mtl', function(materials){
 
         materials.preload();
         // object loader
-        var objLoader = new THREE.OBJLoader();
+        var objLoader = new THREE.OBJLoader(loadingManager);
+        objLoader.setMaterials(materials);
 
-        objLoader.load('/models/Tent_Poles_01.obj', function(mesh){
+        objLoader.load('models/Tent_Poles_01.obj', function(mesh){
 
             mesh.traverse(function(node){
                 if(node instanceof THREE.Mesh ){
