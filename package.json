@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/zuxbrt/threejs-demo#readme",
   "dependencies": {
-    "three": "^0.123.0"
+    "three": "^0.137.0"
   }
 }
